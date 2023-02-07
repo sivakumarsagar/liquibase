@@ -1,9 +1,6 @@
-FROM liquibase/liquibase:4.17
-USER root
-ENV LIQUIBASE_HOME /liquibase/changelog
-WORKDIR $LIQUIBASE_HOME
-COPY ./entrypoint.sh $LIQUIBASE_HOME
-RUN chmod 777 /liquibase/changelog/entrypoint.sh
-COPY changelog.xml /liquibase/changelog
-COPY ./scripts/ /liquibase/changelog/scripts/
-RUN ls /liquibase/changelog/ &&  mkdir -p /liquibase/changelog/internal/lib/ && cp /liquibase/internal/lib/*.jar /liquibase/changelog/internal/lib/ && liquibase --classpath=/liquibase/internal/lib/liquibase-core.jar --changeLogFile=$LIQUIBASE_HOME/changelog.xml --url=jdbc:postgresql://database3.cluster-ckyuejuhxwx8.us-east-1.rds.amazonaws.com:5432/db1 --username=postgres --password=12345678 update 
+FROM alpine:3.12
+WORKDIR /app
+COPY changelog.xml .
+COPY scripts .
+# Install Java, which is required for running Liquibase
+RUN apk add openjdk8-jre && java -version && mkdir liquibasejarfiles && cd liquibasejarfiles && wget https://github.com/liquibase/liquibase/releases/download/v4.0.0/liquibase-4.0.0.tar.gz && tar xvzf liquibase-4.0.0.tar.gz && ls -l && export PATH=$PATH:/app/liquibasejarfiles/ &&  wget https://jdbc.postgresql.org/download/postgresql-42.5.3.jar
